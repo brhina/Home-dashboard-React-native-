@@ -5,6 +5,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type RootStackParamList = {
+  Login: undefined;
   Dashboard: undefined;
   Banking: undefined;
   Ideas: undefined;
@@ -12,6 +13,11 @@ export type RootStackParamList = {
   Links: undefined;
   Network: undefined;
 };
+
+export type LoginScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  'Login'
+>;
 
 export type DashboardScreenProps = NativeStackScreenProps<
   RootStackParamList,

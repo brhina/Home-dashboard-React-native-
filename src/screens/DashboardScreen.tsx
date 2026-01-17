@@ -6,11 +6,47 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
-import { DollarSign, Lightbulb, PlusCircle, Link, Wifi } from 'lucide-react-native';
+import { DollarSign, Lightbulb, PlusCircle, Link, Wifi, LogOut } from 'lucide-react-native';
+import { useAuth } from '../contexts/AuthContext';
 import type { DashboardScreenProps } from '../types/navigation.types';
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
+  const { logout, user } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+              // Use setTimeout to ensure Alert is fully dismissed before navigation
+              setTimeout(() => {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'Login' }],
+                });
+              }, 300);
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const dashboardItems = [
     {
       id: '1',
@@ -54,7 +90,21 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) 
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>HomeDashboard</Text>
+        <View style={styles.headerContent}>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>HomeDashboard</Text>
+            {user && (
+              <Text style={styles.headerSubtitle}>{user.name || user.email}</Text>
+            )}
+          </View>
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={handleLogout}
+            activeOpacity={0.7}
+          >
+            <LogOut color="#FFFFFF" size={20} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Main Content */}
@@ -208,10 +258,33 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    opacity: 0.9,
+    marginTop: 4,
+  },
+  logoutButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 16,
   },
   scrollContent: {
     flexGrow: 1,
